@@ -1,0 +1,30 @@
+{
+    "activeFile": "",
+    "expandedProjectPaths": [
+    ],
+    "fileStates": {
+        "public/assets/map/arena.tmx": {
+            "scale": 0.33,
+            "selectedLayer": 1,
+            "viewCenter": {
+                "x": 1001.5151515151515,
+                "y": 1187.878787878788
+            }
+        },
+        "public/assets/png/default/tiles/teste.tsx": {
+            "dynamicWrapping": true
+        }
+    },
+    "last.exportedFilePath": "/home/cayo/Documentos/Projects/game-developer-challenge/public/assets/map",
+    "last.imagePath": "/home/cayo/Documentos/Projects/game-developer-challenge/public/assets/png/default/ship_parts",
+    "map.height": 34,
+    "map.lastUsedExportFilter": "Todos os Ficheiros (*)",
+    "map.lastUsedFormat": "tmx",
+    "map.width": 60,
+    "openFiles": [
+    ],
+    "project": "sem título.tiled-project",
+    "recentFiles": [
+        "public/assets/map/arena.tmx"
+    ]
+}

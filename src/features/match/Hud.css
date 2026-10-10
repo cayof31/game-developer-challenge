@@ -1,0 +1,122 @@
+.hud {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+  /* stay clear of notches/home bars on mobile (safe areas) */
+  padding:
+    calc(var(--space-3) + env(safe-area-inset-top))
+    calc(var(--space-3) + env(safe-area-inset-right))
+    calc(var(--space-3) + env(safe-area-inset-bottom))
+    calc(var(--space-3) + env(safe-area-inset-left));
+  pointer-events: none; /* only the interactive parts receive input */
+}
+
+.hud__side {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  align-items: flex-start;
+}
+
+.hud__side--right {
+  align-items: flex-end;
+}
+
+.hud__counter {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-width: 110px;
+  padding: var(--space-1) var(--space-2);
+  background: url('/assets/png/default/ui/hud/counter_panel.png') center / 100% 100%
+    no-repeat;
+  color: var(--color-cream);
+  font-weight: 700;
+}
+
+.hud__icon {
+  width: 34px;
+  height: 34px;
+}
+
+.hud__value {
+  font-size: 1.15rem;
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.35);
+}
+
+.hud__health {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.hud__heart {
+  width: 30px;
+  height: 30px;
+}
+
+.hud__bar {
+  position: relative;
+  display: inline-block;
+  width: 180px;
+  height: 34px;
+}
+
+/* The frame's interior is opaque — it IS the empty bar, so it renders
+   first and the fill sprite overlays it. */
+.hud__bar-frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Clipped window sized to the live ratio (inline width). */
+.hud__bar-fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  overflow: hidden;
+}
+
+.hud__bar-fill img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: auto; /* sprite aspect → lines up with the frame's interior */
+  max-width: none;
+}
+
+.hud__pause {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: var(--space-1);
+  border: 2px solid var(--color-wood);
+  border-radius: var(--radius-sm);
+  background: var(--color-ocean);
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.hud__pause img {
+  width: 28px;
+  height: 28px;
+}
+
+/* values the eyes can see but screen readers should still read */
+.hud__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

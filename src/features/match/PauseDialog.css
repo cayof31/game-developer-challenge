@@ -1,0 +1,5 @@
+.pause-dialog__actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}

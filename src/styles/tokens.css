@@ -1,0 +1,39 @@
+/* Design tokens — the game's own palette (ocean, sand, wood, hull colors),
+   one spacing scale and the UI font. Nothing here is screen-specific. */
+:root {
+  /* colors */
+  --color-ocean-deep: #113f52;
+  --color-ocean: #16586f;
+  --color-sand: #e8d8a7;
+  --color-cream: #f5efe0;
+  --color-wood: #8a5a2b;
+  --color-wood-dark: #5c3a1e;
+  --color-amber: #f2b632;
+  --color-red: #e23b3b;
+  --color-green: #3ecf5c;
+  --color-ink: #14202b;
+  --color-text: #e9f1f4;
+  --color-text-on-wood: #fff6e0;
+  --color-focus: #ffd447; /* high-contrast gold for :focus-visible */
+  --color-danger: var(--color-red);
+
+  /* spacing scale */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+
+  /* typography */
+  --font-ui: 'Trebuchet MS', 'Segoe UI', system-ui, sans-serif;
+  --font-size-base: 16px;
+
+  /* radii */
+  --radius-sm: 6px;
+  --radius-md: 12px;
+
+  color-scheme: dark;
+}

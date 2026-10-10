@@ -1,0 +1,26 @@
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+}
+
+.pager__btn {
+  padding: var(--space-1) var(--space-3);
+  border: 2px solid var(--color-wood);
+  border-radius: var(--radius-sm);
+  background: var(--color-ocean);
+  color: var(--color-cream);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.pager__btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.pager__status {
+  color: var(--color-sand);
+  font-weight: 700;
+}

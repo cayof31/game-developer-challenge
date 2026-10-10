@@ -1,0 +1,118 @@
+@import './tokens.css';
+
+/* Reset */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font: var(--font-size-base)/1.5 var(--font-ui);
+  color: var(--color-text);
+  background: var(--color-ocean-deep);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+/* Very visible focus (the spec requires it): thick gold ring, offset so it
+   never hides behind rounded button sprites. */
+:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 3px;
+}
+
+/* Shared screen vocabulary (React screens render into these) */
+.screen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+  background: var(--color-ocean-deep);
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  width: min(384px, calc(100vw - var(--space-6)));
+  padding: var(--space-7) var(--space-6);
+  background: url('/assets/png/default/ui/menu/panel_menu.png') center / 100% 100%
+    no-repeat;
+  color: var(--color-cream);
+  text-align: center;
+}
+
+.panel h1 {
+  font-size: 1.6rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.35);
+}
+
+/* Menu button sprites (normal / hover / pressed / disabled states) */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 220px;
+  min-height: 76px;
+  padding: var(--space-2) var(--space-4);
+  border: none;
+  background: transparent center / 100% 100% no-repeat;
+  color: var(--color-text-on-wood);
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+}
+
+.btn--primary {
+  background-image: url('/assets/png/default/ui/menu/button_primary_normal.png');
+}
+
+.btn--primary:hover {
+  background-image: url('/assets/png/default/ui/menu/button_primary_hover.png');
+}
+
+.btn--primary:active {
+  background-image: url('/assets/png/default/ui/menu/button_primary_pressed.png');
+}
+
+.btn--primary:disabled {
+  background-image: url('/assets/png/default/ui/menu/button_primary_disabled.png');
+  cursor: default;
+}
+
+.btn--secondary {
+  background-image: url('/assets/png/default/ui/menu/button_secondary_normal.png');
+}
+
+.btn--secondary:hover {
+  background-image: url('/assets/png/default/ui/menu/button_secondary_normal.png');
+}
+
+.btn--secondary:active {
+  background-image: url('/assets/png/default/ui/menu/button_secondary_pressed.png');
+}

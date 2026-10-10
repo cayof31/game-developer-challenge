@@ -1,0 +1,46 @@
+.options {
+  gap: var(--space-3);
+  width: min(420px, calc(100vw - var(--space-6)));
+}
+
+.options__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  width: 100%;
+}
+
+.options__field label {
+  color: var(--color-sand);
+  font-weight: 700;
+  text-align: left;
+}
+
+.options__field input {
+  padding: var(--space-2);
+  border: 2px solid var(--color-wood);
+  border-radius: var(--radius-sm);
+  background: var(--color-ocean);
+  color: var(--color-cream);
+  font: inherit;
+}
+
+.options__error {
+  min-height: 1.2em; /* reserve the line so errors never shift the layout */
+  margin: 0;
+  color: var(--color-danger);
+  font-size: 0.85rem;
+  text-align: left;
+}
+
+.options__actions {
+  display: flex;
+  gap: var(--space-3);
+}
+
+.options__saved {
+  min-height: 1.2em;
+  margin: 0;
+  color: var(--color-green);
+  font-weight: 700;
+}

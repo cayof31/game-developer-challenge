@@ -1,0 +1,10 @@
+/* The live region is for ears, not eyes: kept rendered (never display:
+   none, which would hide it from assistive tech too). */
+.a11y-status {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

@@ -1,0 +1,57 @@
+.match-screen {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--color-ocean-deep);
+}
+
+/* Full-viewport host: the Pixi canvas fills it and the renderer letterboxes
+   the world inside (contain-scale of the 1920x1080 logical arena). */
+.match-screen__canvas {
+  position: absolute;
+  inset: 0;
+}
+
+/* The arena's letterboxed box, reproduced in CSS with the same contain-scale
+   math as computeLetterbox (1920x1080 = 16:9): min(100vw, 100vh * 16/9).
+   The HUD lives here, so it tracks the arena area — never the black bars —
+   and stays put across resizes. pointer-events never blocks the canvas. */
+.match-screen__stage {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(100vw, calc(100vh * 16 / 9));
+  height: min(100vh, calc(100vw * 9 / 16));
+  pointer-events: none;
+}
+
+/* Landscape is the supported orientation on mobile: a portrait viewport
+   gets this warning (pure CSS, non-blocking — the match keeps its rules). */
+.rotate-warning {
+  display: none;
+  position: absolute;
+  top: var(--space-3);
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  z-index: 2;
+  padding: var(--space-2) var(--space-4);
+  border: 2px solid var(--color-wood);
+  border-radius: var(--radius-sm);
+  background: var(--color-ocean);
+  color: var(--color-cream);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+@media (orientation: portrait) {
+  .rotate-warning {
+    display: block;
+  }
+}
