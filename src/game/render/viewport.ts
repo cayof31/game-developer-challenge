@@ -41,37 +41,14 @@ export function computeLetterbox(
  */
 export function clampCamera(
   camera: Vec2,
-  viewWidth: number,
-  viewHeight: number,
+  visibleWidth: number,
+  visibleHeight: number,
   worldWidth: number,
   worldHeight: number,
 ): Vec2 {
   return {
-    x: clamp(camera.x, viewWidth / 2, worldWidth - viewWidth / 2),
-    y: clamp(camera.y, viewHeight / 2, worldHeight - viewHeight / 2),
+    x: clamp(camera.x, visibleWidth / 2, worldWidth - visibleWidth / 2),
+    y: clamp(camera.y, visibleHeight / 2, worldHeight - visibleHeight / 2),
   };
 }
 
-/**
- * Converts a point in host/screen px to logical world coordinates, using
- * the full transform: the letterbox of the view plus the camera that
- * positions the view inside the world. Input is clamped to the world
- * bounds — screen coordinates can never point outside the map.
- */
-export function screenToWorld(
-  viewport: ViewportTransform,
-  viewWidth: number,
-  viewHeight: number,
-  worldWidth: number,
-  worldHeight: number,
-  camera: Vec2,
-  screenX: number,
-  screenY: number,
-): Vec2 {
-  const x = (screenX - viewport.x) / viewport.scale + camera.x - viewWidth / 2;
-  const y = (screenY - viewport.y) / viewport.scale + camera.y - viewHeight / 2;
-  return {
-    x: clamp(x, 0, worldWidth),
-    y: clamp(y, 0, worldHeight),
-  };
-}

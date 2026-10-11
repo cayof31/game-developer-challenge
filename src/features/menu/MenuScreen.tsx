@@ -1,6 +1,9 @@
 import { Button } from '../../components/Button';
 import { Tabs } from '../../components/Tabs';
 import ControlsHelp from './ControlsHelp';
+import MatchHistoryTab from './MatchHistoryTab';
+import RankingTab from './RankingTab';
+import { ScenarioPicker } from './ScenarioPicker';
 import './MenuScreen.css';
 
 const TITLE_SPRITE = '/assets/png/default/ui/menu/title_pirate_battle.png';
@@ -13,8 +16,7 @@ interface MenuScreenProps {
 /**
  * Main menu: title art, Play and Options (native buttons, so keyboard
  * navigation and the visible focus ring come for free), the controls
- * reference and the Ranking / Match History tabs — the tab content is a
- * placeholder until the API step fills it.
+ * reference and the Ranking / Match History tabs fed by the API.
  */
 export function MenuScreen({ onPlay, onOptions }: MenuScreenProps) {
   return (
@@ -37,15 +39,17 @@ export function MenuScreen({ onPlay, onOptions }: MenuScreenProps) {
             {
               id: 'ranking',
               label: 'Ranking',
-              content: <p className="menu__placeholder">Ranking will load from the API.</p>,
+              content: <RankingTab />,
             },
             {
               id: 'history',
               label: 'Match History',
-              content: <p className="menu__placeholder">Match history will load from the API.</p>,
+              content: <MatchHistoryTab />,
             },
           ]}
         />
+        {/* the mock-backend debug tools: scenarios + reset (?debug=1 opens it) */}
+        <ScenarioPicker />
       </div>
     </main>
   );

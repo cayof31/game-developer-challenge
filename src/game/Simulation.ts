@@ -32,7 +32,7 @@ import type { Arena, GameEvent, MatchState, Projectile, Ship, Vec2 } from './typ
 export class Simulation {
   private readonly config: GameConfig;
   private readonly fixedStep: number;
-  private readonly rng: Rng;
+  private rng: Rng;
   private readonly arena: Arena;
   private accumulator = 0;
   private status: 'running' | 'paused' | 'ended' = 'running';
@@ -96,6 +96,33 @@ export class Simulation {
   /** Replaces the player's control state (from keyboard or touch). */
   setInput(input: InputState): void {
     this.input = { ...input };
+  }
+
+  /** Test hook: restarts the match's PRNG — the same seed replays the same future. */
+  setSeed(seed: number): void {
+    this.rng = mulberry32(seed);
+  }
+
+  /**
+   * Test hook: places an enemy built by the REAL factories at an exact
+   * position and facing. Positioning only — AI, weapons, collisions and
+   * scoring keep running through the regular pipeline.
+   */
+  placeEnemy(kind: 'chaser' | 'shooter', position: Vec2, angle: number): void {
+    this.ships.push(
+      kind === 'chaser'
+        ? createChaser(this.config, position, this.nextId++, angle)
+        : createShooter(this.config, position, this.nextId++, angle),
+    );
+  }
+
+  /**
+   * Test hook: applies the REAL damage rule to the player — hp drops
+   * through damageSystem, and the next fixed step runs the same death
+   * check as any enemy hit ends the match by, no shortcuts.
+   */
+  damagePlayer(amount: number): void {
+    damageSystem(this.player, amount);
   }
 
   /**

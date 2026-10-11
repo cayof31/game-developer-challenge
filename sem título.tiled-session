@@ -1,6 +1,14 @@
 {
-    "activeFile": "",
+    "activeFile": "public/assets/map/arena.tmx",
     "expandedProjectPaths": [
+        "public",
+        "public/assets/png/default/tiles",
+        ".",
+        "public/assets/map",
+        "public/assets",
+        "public/assets/png",
+        "public/assets/spritesheet",
+        "public/assets/png/default"
     ],
     "fileStates": {
         "public/assets/map/arena.tmx": {
@@ -12,7 +20,9 @@
             }
         },
         "public/assets/png/default/tiles/teste.tsx": {
-            "dynamicWrapping": true
+            "dynamicWrapping": true,
+            "scaleInDock": 0.53,
+            "scaleInEditor": 1
         }
     },
     "last.exportedFilePath": "/home/cayo/Documentos/Projects/game-developer-challenge/public/assets/map",
@@ -22,9 +32,13 @@
     "map.lastUsedFormat": "tmx",
     "map.width": 60,
     "openFiles": [
+        "public/assets/png/default/tiles/teste.tsx",
+        "public/assets/map/arena.tmx",
+        "public/assets/map/arena.tmx"
     ],
     "project": "sem título.tiled-project",
     "recentFiles": [
+        "public/assets/png/default/tiles/teste.tsx",
         "public/assets/map/arena.tmx"
     ]
 }

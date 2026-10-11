@@ -4,20 +4,27 @@
 }
 
 .result__stats {
-  margin: 0 0 var(--space-5);
+  margin: 0 0  0 var(--space-5);
   display: grid;
   gap: var(--space-2);
+  width: 100%;
 }
 
 .result__row {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
+  width: 92%;
   gap: var(--space-4);
   padding: var(--space-2) var(--space-3);
   border: 2px solid var(--color-wood);
   border-radius: var(--radius-sm);
   background: var(--color-ocean);
+}
+.result__row .btn{
+  width: 100px;
+  height: 40px;
+  font-size: 0.6rem;
 }
 
 .result__row dt {
@@ -37,8 +44,28 @@
   text-align: center;
 }
 
+.result__status--saved {
+  color: var(--color-green);
+}
+
+.result__status--pending {
+  color: var(--color-amber);
+}
+
+.result__status--failed {
+  color: var(--color-red);
+  font-size: 0.8rem;
+}
+
+.result__registration {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
 .result__actions {
   display: flex;
   justify-content: center;
+  width: 270px;
   gap: var(--space-3);
 }

@@ -1,8 +1,8 @@
-import { Application, Container } from 'pixi.js';
-import type { Ticker } from 'pixi.js';
-import type { Vec2 } from '../types';
-import { clampCamera, computeLetterbox, screenToWorld } from './viewport';
-import type { ViewportTransform } from './viewport';
+import { Application, Container } from "pixi.js";
+import type { Ticker } from "pixi.js";
+import type { Vec2 } from "../types";
+import { clampCamera, computeLetterbox } from "./viewport";
+import type { ViewportTransform } from "./viewport";
 
 /** What GameRenderer needs from a Pixi application (injectable for tests). */
 export interface PixiApp {
@@ -12,6 +12,10 @@ export interface PixiApp {
   readonly ticker: {
     add(callback: (ticker: Ticker) => void): void;
     remove(callback: (ticker: Ticker) => void): void;
+    /** test-mode seams: the ticker IS the clock (see stopAutoClock/manualTick) */
+    stop(): void;
+    update(currentTime?: number): void;
+    lastTime: number;
   };
   init(options: PixiAppInitOptions): Promise<void>;
   destroy(
@@ -38,7 +42,9 @@ export interface ResizeObserverHost {
   disconnect(): void;
 }
 
-export type ResizeObserverFactory = (onResize: () => void) => ResizeObserverHost;
+export type ResizeObserverFactory = (
+  onResize: () => void,
+) => ResizeObserverHost;
 
 export interface GameRendererOptions {
   /** element that hosts the Pixi canvas */
@@ -59,7 +65,7 @@ const BACKGROUND_COLOR = 0x113f52;
  * tab switch the game skips forward at most this much instead of jumping —
  * the raw ticker.elapsedMS is clamped here, never trusted directly.
  */
-const MAX_FRAME_DELTA_MS = 100;
+export const MAX_FRAME_DELTA_MS = 100;
 
 const defaultResizeObserverFactory: ResizeObserverFactory = (onResize) =>
   new ResizeObserver(onResize);
@@ -74,8 +80,7 @@ const defaultResizeObserverFactory: ResizeObserverFactory = (onResize) =>
  * view inside the bigger world — the camera follows the player and is
  * clamped so the view never shows beyond the map edges. The canvas fills
  * the host; a ResizeObserver on the host element (not window.resize)
- * recalculates the renderer size and the world transform. `screenToWorld`
- * reverses the full transform (letterbox + camera) for pointer input.
+ * recalculates the renderer size and the world transform.
  *
  * Strict Mode races: `destroy()` may run while the async `app.init()` is
  * still awaiting — a `disposed` flag is re-checked after every await, so
@@ -98,7 +103,8 @@ export class GameRenderer {
   private camera: Vec2 = { x: 0, y: 0 };
   private initFinished = false;
   private disposed = false;
-
+  private visibleWidth = 0;
+  private visibleHeight = 0;
   constructor(
     createApp: AppFactory = () => new Application(),
     createResizeObserver: ResizeObserverFactory = defaultResizeObserverFactory,
@@ -114,7 +120,9 @@ export class GameRenderer {
 
   /** Stage root for non-world layers, or null before init / after destroy. */
   get stage(): Container | null {
-    return this.initFinished && !this.disposed ? this.app?.stage ?? null : null;
+    return this.initFinished && !this.disposed
+      ? (this.app?.stage ?? null)
+      : null;
   }
 
   /**
@@ -177,10 +185,26 @@ export class GameRenderer {
     if (!host || !app) return;
     const width = host.clientWidth;
     const height = host.clientHeight;
-    if (width <= 0 || height <= 0) return; // hidden (display:none) → keep last layout
+    if (width <= 0 || height <= 0) return;
 
-    this.viewport = computeLetterbox(width, height, this.viewWidth, this.viewHeight);
+    const lb = computeLetterbox(width, height, this.viewWidth, this.viewHeight);
+    // the view may never be larger than the world on either axis
+    const scale = Math.max(
+      lb.scale,
+      width / this.worldWidth,
+      height / this.worldHeight,
+    );
+    this.viewport = { ...lb, scale, x: 0, y: 0 };
+    this.visibleWidth = width / scale;
+    this.visibleHeight = height / scale;
     app.renderer.resize(width, height);
+    this.camera = clampCamera(
+      this.camera,
+      this.visibleWidth,
+      this.visibleHeight,
+      this.worldWidth,
+      this.worldHeight,
+    );
     this.applyWorldTransform();
   }
 
@@ -193,8 +217,8 @@ export class GameRenderer {
     if (!this.initFinished || this.disposed) return;
     this.camera = clampCamera(
       { x, y },
-      this.viewWidth,
-      this.viewHeight,
+      this.visibleWidth,
+      this.visibleHeight,
       this.worldWidth,
       this.worldHeight,
     );
@@ -208,28 +232,8 @@ export class GameRenderer {
     if (!world || !viewport) return;
     world.scale.set(viewport.scale);
     world.position.set(
-      viewport.x + (this.viewWidth / 2 - this.camera.x) * viewport.scale,
-      viewport.y + (this.viewHeight / 2 - this.camera.y) * viewport.scale,
-    );
-  }
-
-  /**
-   * Converts a point in host/screen px into logical world coordinates —
-   * what touch handlers and clicks need to aim and fire. The full transform
-   * (letterbox + camera) is reversed. Null before init, after destroy, or
-   * while the host is hidden.
-   */
-  screenToWorld(screenX: number, screenY: number): Vec2 | null {
-    if (!this.viewport) return null;
-    return screenToWorld(
-      this.viewport,
-      this.viewWidth,
-      this.viewHeight,
-      this.worldWidth,
-      this.worldHeight,
-      this.camera,
-      screenX,
-      screenY,
+      viewport.x + (this.visibleWidth / 2 - this.camera.x) * viewport.scale,
+      viewport.y + (this.visibleHeight / 2 - this.camera.y) * viewport.scale,
     );
   }
 
@@ -242,7 +246,9 @@ export class GameRenderer {
    */
   startLoop(onFrame: (deltaSec: number) => void): void {
     if (!this.initFinished || this.disposed) {
-      throw new Error('GameRenderer.startLoop called on a renderer that is not ready');
+      throw new Error(
+        "GameRenderer.startLoop called on a renderer that is not ready",
+      );
     }
     this.stopLoop();
     this.onFrame = onFrame;
@@ -254,6 +260,28 @@ export class GameRenderer {
     const ticker = this.app?.ticker;
     if (ticker) ticker.remove(this.tick);
     this.onFrame = null;
+  }
+
+  /**
+   * Test-mode seams (test-support/testHooks.ts): the clock is the Pixi
+   * ticker. `stopAutoClock` detaches it from requestAnimationFrame so it
+   * never advances on its own; `manualTick` then runs ONE real cycle
+   * delivering `deltaMs` virtual milliseconds — the frame callback (rules,
+   * inputs, views) and the render all ride it, exactly as in play. The
+   * virtual time starts at the ticker's own clock, so no real time leaks
+   * in between calls and the result is deterministic.
+   */
+  private virtualTime: number | null = null;
+
+  stopAutoClock(): void {
+    this.app?.ticker.stop();
+  }
+
+  manualTick(deltaMs: number): void {
+    const ticker = this.app?.ticker;
+    if (!ticker || deltaMs <= 0) return;
+    this.virtualTime = (this.virtualTime ?? ticker.lastTime) + deltaMs;
+    ticker.update(this.virtualTime);
   }
 
   private onFrame: ((deltaSec: number) => void) | null = null;
@@ -273,11 +301,13 @@ export class GameRenderer {
     this.stopLoop(); // never leave a ticker callback behind
     this.observer?.disconnect();
     this.observer = null;
-    if (this.app !== null && this.initFinished) this.teardown(this.app, this.worldContainer);
+    if (this.app !== null && this.initFinished)
+      this.teardown(this.app, this.worldContainer);
     this.app = null;
     this.worldContainer = null;
     this.host = null;
     this.viewport = null;
+    this.virtualTime = null;
     this.initFinished = false;
   }
 

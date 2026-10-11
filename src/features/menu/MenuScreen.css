@@ -8,9 +8,3 @@
   justify-content: center;
   gap: var(--space-4);
 }
-
-.menu__placeholder {
-  margin: 0;
-  color: var(--color-text);
-  text-align: center;
-}

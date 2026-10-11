@@ -1,6 +1,11 @@
 .options {
   gap: var(--space-3);
-  width: min(420px, calc(100vw - var(--space-6)));
+  width: min(440px, calc(100vw - var(--space-6)));
+  padding: var(--space-7) var(--space-8);
+}
+.options .btn{
+width: 155px;
+height: 60px;
 }
 
 .options__field {

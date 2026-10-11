@@ -22,3 +22,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Playwright output (the versioned snapshots live in e2e/*-snapshots/)
+test-results/
+playwright-report/
+blob-report/
+.playwright/

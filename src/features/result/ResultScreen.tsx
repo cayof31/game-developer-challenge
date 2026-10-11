@@ -1,12 +1,8 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
+import { Button } from '../../components/Button';
+import { getSubmission, retrySubmission, subscribeSubmissions } from '../../api/pendingSubmissions';
 import { loadLastResult, type LastMatchResult } from './lastResultStorage';
 import './ResultScreen.css';
-
-/**
- * Fixed until the ranking/history API lands: this is the registration
- * field the later step will wire to the network.
- */
-const REGISTRATION_STATUS = 'Not registered';
 
 const END_REASON_LABEL: Record<LastMatchResult['endReason'], string> = {
   time: 'Time expired',
@@ -26,17 +22,40 @@ interface ResultScreenProps {
 /**
  * The completed match's result: read from lastResultStorage when the
  * screen mounts, so it survives a refresh (the app reopens this screen
- * whenever a result is stored). The title takes focus on open for
- * screen-reader and keyboard users; score, time and reason are plain
- * readable text, never live.
+ * whenever a result is stored). Registration mirrors the pending queue
+ * — the match was queued when it ended, so this screen only observes:
+ * Saving… while it goes out, Pending, will retry while the queue waits
+ * for a scheduled attempt, the error with a manual "Try again" when the
+ * server rejected it, and Saved once the record landed and left the
+ * queue.
  */
 export function ResultScreen({ onPlayAgain, onMainMenu }: ResultScreenProps) {
   const [result] = useState(() => loadLastResult());
   const titleRef = useRef<HTMLHeadingElement | null>(null);
+  // the queue is the source of truth for the submission's fate
+  const submission = useSyncExternalStore(
+    subscribeSubmissions,
+    () => (result === null ? null : getSubmission(result.id)),
+    () => (result === null ? null : getSubmission(result.id)),
+  );
 
   useEffect(() => {
     titleRef.current?.focus();
   }, []);
+
+  const failed = submission?.state === 'failed';
+  const statusText =
+    submission === null
+      ? 'Saved'
+      : submission.state === 'sending' || submission.attempts === 0
+        ? 'Saving…'
+        : 'Pending, will retry';
+  const statusClass =
+    submission === null
+      ? 'result__status result__status--saved'
+      : submission.state !== 'sending' && submission.attempts > 0
+        ? 'result__status result__status--pending'
+        : 'result__status';
 
   return (
     <main className="screen">
@@ -62,8 +81,24 @@ export function ResultScreen({ onPlayAgain, onMainMenu }: ResultScreenProps) {
             </div>
             <div className="result__row">
               <dt>Registration</dt>
-              <dd>{REGISTRATION_STATUS}</dd>
+              <dd>
+                {failed ? (
+                  <span className="result__registration">
+                    
+                    <Button variant="secondary" onClick={() => void retrySubmission(result.id)}>
+                      Try again
+                    </Button>
+                  </span>
+                ) : (
+                  <span className={statusClass}>{statusText}</span>
+                )}
+              </dd>
             </div>
+            {failed && (
+              <span className="result__status result__status--failed">
+                {submission?.error ?? 'The server rejected the submission.'}
+              </span>
+            )}
           </dl>
         )}
         <div className="result__actions">

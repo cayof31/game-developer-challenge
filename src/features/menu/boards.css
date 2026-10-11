@@ -1,0 +1,69 @@
+/* Shared board styles for the Ranking and Match History tabs: the four
+   list states (loading / empty / error / data), the updating badge and
+   the data table. Both tabs are list boards, so they share one skin. */
+
+.board {
+  display: grid;
+  gap: var(--space-3);
+}
+
+/* horizontal scroll keeps narrow screens from squeezing the columns */
+.board__scroll {
+  overflow-x: auto;
+}
+
+.board__status {
+  margin: 0;
+  color: var(--color-text);
+  text-align: center;
+}
+
+.board__status--error {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-3);
+  color: var(--color-text);
+}
+
+.board__status--error p {
+  margin: 0;
+  color: var(--color-red);
+  font-weight: 700;
+}
+
+/* live region, always mounted so refetches are announced politely;
+   visually discrete and never replacing the rows below */
+.board__updating {
+  min-height: 1.2em;
+  margin: 0;
+  color: var(--color-sand);
+  font-size: 0.85em;
+  text-align: right;
+}
+
+.board__table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.board__table th,
+.board__table td {
+  padding: var(--space-1) var(--space-2);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.board__table th {
+  color: var(--color-sand);
+  border-bottom: 2px solid var(--color-wood);
+}
+
+.board__row:nth-child(even) {
+  background: rgb(255 255 255 / 4%);
+}
+
+/* the local player's rows: gold wash + weight, plus aria-current */
+.board__row--me {
+  background: rgb(242 182 50 / 16%);
+  font-weight: 700;
+}

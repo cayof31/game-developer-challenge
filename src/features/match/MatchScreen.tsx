@@ -2,8 +2,10 @@ import { useEffect, useState } from 'react';
 import { useGameStore } from '../../bridge/gameStore';
 import { gameConfig, withOptions } from '../../config/gameConfig';
 import { usePageVisibility } from '../../hooks/usePageVisibility';
+import { getLocalPlayerId } from '../../api/contracts';
+import { useSubmitMatch } from '../../api/hooks/useSubmitMatch';
 import { loadOptions } from '../options/optionsStorage';
-import { saveLastResult } from '../result/lastResultStorage';
+import { saveLastResult, toMatchRecord, type LastMatchResult } from '../result/lastResultStorage';
 import { A11yStatus } from './A11yStatus';
 import { Hud } from './Hud';
 import { LoadingOverlay } from './LoadingOverlay';
@@ -53,6 +55,7 @@ function MatchSession({ onExit, onFinish, onRestart }: MatchSessionProps) {
   const { phase, progress, error, retry, containerRef, pause, resume } = useGameSession();
   const status = useGameStore((state) => state.status);
   const pageActive = usePageVisibility();
+  const { mutate } = useSubmitMatch();
 
   // Auto-pause: the tab hid or the window lost focus. Nothing ever
   // auto-resumes — coming back only re-shows the dialog.
@@ -73,21 +76,30 @@ function MatchSession({ onExit, onFinish, onRestart }: MatchSessionProps) {
   // A finished match records its result (the Result screen reads storage
   // on mount, so the write happens before navigating) and leaves combat.
   // Abandoned matches never reach 'ended', so they are never written.
+  // The submission is queued BEFORE it is sent — a tab closed mid-send
+  // keeps the record, and the queue drives every retry from there.
   useEffect(() => {
     if (phase !== 'ready' || status !== 'ended') return;
     const { score, timeLeftSec, endReason } = useGameStore.getState();
     // The same options the session was built with (storage cannot change
     // mid-match), so the recorded time matches the HUD countdown.
     const { match } = withOptions(gameConfig, loadOptions());
-    saveLastResult({
+    const result: LastMatchResult = {
+      // the idempotency key of the API submission, created with the result
+      id: crypto.randomUUID(),
       score,
       timePlayedSec: Math.max(0, Math.round(match.sessionTimeSec - timeLeftSec)),
       // the simulation always sets the reason together with 'ended'
       endReason: endReason ?? 'time',
       finishedAt: new Date().toISOString(),
-    });
+      // captured now: options can change before the result screen reopens
+      config: { sessionTimeSec: match.sessionTimeSec, spawnIntervalSec: match.spawnIntervalSec },
+    };
+    saveLastResult(result);
+    const playerId = getLocalPlayerId();
+    if (playerId !== null) mutate(toMatchRecord(result, playerId));
     onFinish();
-  }, [phase, status, onFinish]);
+  }, [phase, status, onFinish, mutate]);
 
   const paused = phase === 'ready' && status === 'paused';
 

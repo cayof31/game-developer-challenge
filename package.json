@@ -6,8 +6,12 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "typecheck": "tsc -b --pretty false",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:e2e": "playwright test",
+    "test:e2e:update": "playwright test --update-snapshots=all",
+    "test:report": "playwright show-report"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.104.1",

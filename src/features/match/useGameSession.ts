@@ -17,6 +17,7 @@ import { ProjectilesView } from '../../game/render/ProjectileView';
 import { ShipsView } from '../../game/render/ShipView';
 import { loadGameAssets } from '../../game/render/assetLoader';
 import { loadArenaAssets } from '../../game/map/mapAssets';
+import { installGameTestHooks } from '../../test-support/testHooks';
 
 export type SessionPhase = 'loading' | 'error' | 'ready';
 
@@ -196,6 +197,11 @@ export function useGameSession(): GameSession {
           effectsView.update(deltaSec);
         });
 
+        // Test mode only (?test=1 / VITE_E2E): window.__game drives THIS
+        // session's clock — the ticker stopped advancing on its own. In
+        // normal use this call does nothing at all.
+        installGameTestHooks({ simulation, renderer });
+
         setPhase('ready');
       } catch (err) {
         if (!cancelled) {
@@ -207,6 +213,8 @@ export function useGameSession(): GameSession {
 
     return () => {
       cancelled = true;
+      // the test hook leaves with the session it was driving
+      installGameTestHooks(null);
       // Views first (frees their pools), then the renderer (ticker off,
       // observer disconnected, canvas removed, world torn down).
       viewsRef.current?.arena.destroy();
